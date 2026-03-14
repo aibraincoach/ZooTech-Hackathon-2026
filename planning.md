@@ -6,9 +6,9 @@
 
 ## 1. Vision
 
-Varkly is the fastest, most frictionless way to discover your VARK learning style and immediately apply it. The experience should feel instant, playful, and genuinely useful — not another academic form. Every person who completes the quiz leaves with something actionable: a shareable URL, personalised tips, and (coming soon) ready-to-paste AI prompts that make every AI tool they use smarter about how they learn.
+Varkly is the fastest, most frictionless way to discover your VARK learning style and immediately apply it to every AI tool you use. The experience is instant, playful, and genuinely useful — not another academic form. Every person who completes the quiz leaves with two copy-ready AI prompts that make every AI tool they use smarter about how they learn.
 
-The long-term vision is to make Varkly the canonical "learning style passport" — a single result URL you hand to teachers, coaches, therapists, AI assistants, and colleagues so they instantly know how to communicate with you.
+**Varkly is entirely stateless.** No user data is collected or stored. No accounts. No database. No server. Everything runs in the browser — scoring, prompt generation, and results encoding. The only persistence is the shareable URL, which encodes all scores client-side.
 
 ---
 
@@ -17,21 +17,14 @@ The long-term vision is to make Varkly the canonical "learning style passport" �
 ```
 Browser (React SPA)
     │
-    ├── Supabase JS Client (anon key)
-    │       ├── quiz_responses table  (INSERT on form submit, UPDATE on quiz complete)
-    │       ├── visitor_analytics table (INSERT on every page view)
-    │       └── quiz_responses table  (SELECT unsubscribe data, UPDATE unsubscribe flag)
-    │
-    └── Supabase Edge Functions (called via fetch with anon Bearer token)
-            ├── send-vark-report      (POST — email delivery)
-            ├── enrich-analytics      (POST — IP geolocation)
-            ├── get-my-results        (POST — historical results lookup)
-            ├── analytics-data        (GET — admin dashboard, single site)
-            ├── analytics-data-enriched (GET — admin dashboard, enriched)
-            └── analytics-data-multi-site (GET — admin dashboard, multi-site)
+    ├── Quiz state         → sessionStorage (ephemeral, cleared on tab close)
+    ├── Theme preference   → localStorage
+    ├── Score calculation  → in-memory (QuizContext.calculateScores)
+    ├── AI prompt generation → in-memory (src/utils/aiPrompts.ts)
+    └── Results sharing    → URL encoding (btoa/atob, no server involved)
 ```
 
-The frontend is a pure SPA — there is no custom server. All server-side logic runs inside Supabase Edge Functions (Deno). The database is Supabase-hosted PostgreSQL with Row Level Security.
+There is no backend. There is no database. There are no API calls during the quiz or results flow. The app is a pure client-side SPA deployed as static files on Vercel.
 
 ---
 
@@ -39,7 +32,7 @@ The frontend is a pure SPA — there is no custom server. All server-side logic 
 
 ### React 18 + TypeScript
 - React chosen for its component model and the ecosystem of animation/chart libraries.
-- TypeScript for safety across the full data flow from Supabase types through to UI props.
+- TypeScript for correctness across the scoring, prompt generation, and URL encoding logic.
 
 ### Vite 5
 - Dramatically faster HMR than Create React App. Native ESM. Smaller build output.
@@ -58,176 +51,16 @@ The frontend is a pure SPA — there is no custom server. All server-side logic 
 
 ### Recharts v2
 - Bar chart for VARK score visualisation in `ResultsChart`.
-- PieChart and LineChart in the admin analytics dashboard.
 - Chosen over Chart.js for its React-native API (no imperative DOM manipulation).
 
-### Supabase
-- PostgreSQL with RLS eliminates the need for a custom API server for data persistence.
-- Edge Functions (Deno) allow server-side logic (email, IP lookup, analytics aggregation) without standing up a Node.js server.
-- Anon key is safe to expose in the frontend because RLS policies control what each role can access.
-- Service role key is only used inside Edge Functions.
-
-### nodemailer + Gmail SMTP
-- Simpler than a dedicated email API (SendGrid, Resend) for the current volume.
-- Gmail App Password stored as Edge Function secret.
-- **Known risk:** Gmail SMTP is rate-limited and not designed for transactional email at scale. Should be migrated to a dedicated email provider if send volume grows.
-
-### Google reCAPTCHA v3
-- Invisible scoring-based CAPTCHA. Score threshold set to 0.5 in the Edge Function.
-- Optional (graceful degradation if `VITE_RECAPTCHA_SITE_KEY` is not set).
-
-### ua-parser-js
-- Parses `navigator.userAgent` into structured browser/OS/device fields for analytics.
-
 ### Vercel
-- Zero-config SPA deployment. `vercel.json` adds a catch-all rewrite to `index.html` so React Router deep links work.
+- Zero-config static SPA deployment. `vercel.json` adds a catch-all rewrite to `index.html` so React Router deep links (`/r/:hash`) work correctly.
 
 ---
 
-## 4. Supabase Database Schema
+## 4. Shareable Results URL Encoding
 
-### `quiz_responses`
-
-```sql
-id             uuid PRIMARY KEY DEFAULT gen_random_uuid()
-email          text NULL
-first_name     text NULL
-reason         text NULL
-custom_reason  text NULL
-scores         jsonb NOT NULL     -- { V: number, A: number, R: number, K: number }
-answers        jsonb NOT NULL     -- { [questionId]: string[] }
-results_url    text NOT NULL
-email_sent     boolean DEFAULT false
-ip_address     inet NULL
-user_agent     text NULL
-unsubscribed   boolean DEFAULT false
-created_at     timestamptz DEFAULT now()
-```
-
-**RLS Policies:**
-- Anon users can INSERT
-- Service role has full access
-
-**Write pattern:**
-1. On email form submit → INSERT with `{ email, first_name, reason, scores: {V:0,A:0,R:0,K:0}, answers: {}, results_url: '' }` → returns `id`
-2. On quiz completion → UPDATE by `id` with `{ scores, answers, results_url }`
-3. Anonymous quiz completion (no email) → INSERT with full scores/answers/results_url in one step
-
----
-
-### `emails`
-
-```sql
-id            uuid PRIMARY KEY DEFAULT gen_random_uuid()
-recipient     text NOT NULL
-subject       text NULL
-body          text NULL       -- Full HTML email body
-cc            text NULL
-bcc           text NULL
-status        text DEFAULT 'pending'   -- pending | sending | sent | failed
-smtp_response text NULL
-metadata      jsonb NULL      -- { type, scores, dominantStyles, reason, quiz_response_id }
-created_at    timestamptz DEFAULT now()
-```
-
-Used as an email log. Every outbound email attempt is recorded before sending and updated with the SMTP result.
-
----
-
-### `visitor_analytics`
-
-```sql
-id                uuid PRIMARY KEY DEFAULT gen_random_uuid()
-timestamp         timestamptz DEFAULT now() NOT NULL
-session_id        text NOT NULL
-ip_address        inet NULL
-user_agent        text NULL
-page_path         text NOT NULL
-query_parameters  jsonb NULL
-referrer          text NULL
-utm_source        text NULL
-utm_medium        text NULL
-utm_campaign      text NULL
-utm_term          text NULL
-utm_content       text NULL
-browser_name      text NULL
-browser_version   text NULL
-os_name           text NULL
-os_version        text NULL
-device_type       text NULL       -- mobile | tablet | desktop
-screen_width      integer NULL
-screen_height     integer NULL
-viewport_width    integer NULL
-viewport_height   integer NULL
-language          text NULL
-timezone          text NULL
-page_load_duration integer NULL   -- milliseconds
-country           text NULL       -- enriched by Edge Function
-city              text NULL       -- enriched by Edge Function
-created_at        timestamptz DEFAULT now()
-```
-
-**RLS Policies:**
-- Anon users can INSERT (page view tracking)
-- Only service role can SELECT (privacy)
-
----
-
-## 5. Edge Function Design
-
-### `send-vark-report`
-**Trigger:** POST from `ResultsPage` after quiz completion  
-**Auth:** Supabase anon Bearer token  
-**Flow:**
-1. Parse JSON body
-2. Check all honeypot field locations → reject if non-empty
-3. Validate with Zod schema
-4. Verify reCAPTCHA score (if token provided)
-5. Check Gmail SMTP credentials exist
-6. Build personalised HTML + plain text email (`generateEmailContent`)
-7. INSERT email record with `status: "sending"`
-8. Send via nodemailer
-9. UPDATE email record with `status: "sent"` + SMTP response, or `status: "failed"` + error
-
-**Env vars required:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GMAIL_ADDRESS`, `GMAIL_APP_PASSWORD`, `RECAPTCHA_SECRET`
-
----
-
-### `enrich-analytics`
-**Trigger:** POST from `VisitorTracker` after inserting analytics row  
-**Auth:** Supabase anon Bearer token  
-**Flow:**
-1. Extract real IP from request headers (cf-connecting-ip → x-real-ip → x-forwarded-for)
-2. Skip local/private/bogon IPs
-3. Call IPinfo API with the IP
-4. Find recent `visitor_analytics` rows with that IP that have `city IS NULL`
-5. UPDATE those rows with city/region/country/org
-
-**Env vars required:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`  
-**External dependency:** IPinfo API (token hardcoded in source — should be moved to env var)
-
----
-
-### `get-my-results`
-**Trigger:** POST from `MyResultsPage`  
-**Auth:** Supabase anon Bearer token  
-**Flow:**
-1. Parse email from body
-2. Query `quiz_responses` by email (normalised to lowercase)
-3. Return `id`, `created_at`, `results_url`, `scores` for matching records
-
----
-
-### `analytics-data-multi-site`
-**Trigger:** GET from `AnalyticsPage`  
-**Auth:** Admin token via query parameter  
-**Returns:** Aggregated analytics across all tracked domains — visitors per day, device breakdown, top IPs, top ISPs, top referrers, top cities, raw visit log
-
----
-
-## 6. Shareable Results URL Encoding
-
-Results are encoded into a URL without any server-side storage of the hash:
+Results are encoded entirely client-side. No server lookup is required to view a shared result.
 
 ```
 scores string: "V-A-R-K"  (e.g. "9-2-1-1")
@@ -238,62 +71,76 @@ final URL:     https://varkly.app/r/OS0yLTEtMQ
 
 On load, `ResultsPage` decodes `atob(hash)`, splits on `-`, and validates each value is a number between 0 and 13. Invalid hashes redirect to `/`.
 
-**Implication:** The results URL is fully self-contained. Anyone with the link can view the results. No lookup is needed. The tradeoff is that the URL encodes only the scores, not the full answer breakdown.
+**Implication:** The results URL is fully self-contained. Anyone with the link can view the results and generate the same AI prompts without any server request. The URL encodes scores only — not the full answer breakdown.
 
 ---
 
-## 7. AI Prompts Feature — Design
+## 5. AI Prompts — Generation Design
 
 ### Approach
-All prompts are generated client-side from the `VarkScores` object. No new API calls, no new database columns needed for the MVP.
+All prompts are generated entirely client-side from the `VarkScores` object. No API calls. No templates stored server-side. The generation function lives in `src/utils/aiPrompts.ts` and is pure — given the same scores, it always produces the same output.
+
+### Dominant Style Determination
+```typescript
+const dominantScore = Math.max(V, A, R, K);
+const dominantStyles = (['V', 'A', 'R', 'K'] as const).filter(k => scores[k] === dominantScore);
+```
 
 ### System Prompt Template Structure
 ```
-"I'm a [style description] learner (VARK scores: V=[V], A=[A], R=[R], K=[K]).
+"I am a [style description] learner (VARK: V=[V], A=[A], R=[R], K=[K]).
 
-[Style-specific communication instructions]
+[Style-specific communication instructions — 2–3 sentences]
 
-[Style-specific structure instructions]
+[Style-specific structure instructions — 1–2 sentences]
 
-[Style-specific check-in instruction]"
+[Check-in instruction — 1 sentence]"
 ```
 
-### Redirect Prompt Template Structure
+### Conversation Prompt Template Structure
 ```
-"Quick note: I'm a [dominant style] learner. [Single-sentence style-appropriate redirect request]."
+"I'm a [dominant style] learner — [one-sentence style preference statement]. [One-sentence reorientation request]."
 ```
 
-### Style Communication Instructions (per dominant type)
+### Style Instruction Bank (per dimension)
 
-**Visual (V dominant):**
-- Use diagrams, flowcharts, spatial metaphors, and visual analogies
-- Structure with clear visual hierarchy: headers, callout boxes, bullet points
-- Avoid long unbroken prose
+**Visual (V):**
+- Structure responses with headers, sub-headers, and bullet points over prose
+- Use diagrams, tables, flowcharts, and spatial metaphors wherever useful
+- Avoid dense unbroken paragraphs
+- Check-in: offer a diagram, visual analogy, or restructured layout
 
-**Auditory (A dominant):**
+**Auditory (A):**
 - Use conversational language, rhetorical questions, and verbal walkthroughs
-- Offer to "talk through" concepts step by step
-- Avoid walls of bullet points — write as you'd speak
+- Write as you'd speak — avoid dry bullet lists
+- Check-in: re-explain using a different verbal framing or analogy
 
-**Read/Write (R dominant):**
-- Use detailed written explanations, numbered lists, and defined terminology
-- Provide references or structured summaries
-- Avoid analogies that require visualisation — just say it directly
+**Read/Write (R):**
+- Use precise written definitions, numbered lists, and labelled terminology
+- Provide structured summaries with headings and sub-points
+- Check-in: offer a written outline or definitions-first restatement
 
-**Kinesthetic (K dominant):**
-- Use real-world examples, case studies, and "try this" instructions
+**Kinesthetic (K):**
+- Lead with a concrete real-world example or scenario before any theory
 - Frame explanations around doing: "here's how you'd apply this"
-- Offer to walk through a concrete example rather than abstract theory
+- Check-in: offer a different example or a step-by-step practical exercise
 
-**Multimodal:**
-- Blend the instructions for each dominant style
+### Multimodal Blending
+- Two dominant styles: merge instruction sets from both dimensions; check-in references both
+- Three or more: describe user as "highly multimodal"; instruct AI to vary format freely
+
+### Generation Constraints
+- System prompt: 100–150 words maximum
+- Conversation prompt: 25–40 words maximum
+- Both prompts must be copy-ready: no placeholders, no ellipsis, no user-facing formatting instructions
+- Both prompts must work pasted cold into a new AI session with no surrounding context
 
 ### Component Placement
-New `AIPromptsCard` component inserted in `ResultsPage` between `ResultsExplanation` and the "Want to try again?" card.
+`AIPromptsCard` is inserted in `ResultsPage` between `ResultsExplanation` and the "Retake Quiz" card. It renders on both fresh completions (`/results`) and shared result views (`/r/:hash`).
 
 ---
 
-## 8. Vercel Deployment Config
+## 6. Vercel Deployment Config
 
 `vercel.json`:
 ```json
@@ -302,19 +149,19 @@ New `AIPromptsCard` component inserted in `ResultsPage` between `ResultsExplanat
 }
 ```
 
-This ensures all deep-link routes (`/r/:hash`, `/u/:id`, `/my-results`, `/analytics`) are served by the React app rather than returning a 404.
+Ensures the deep-link route `/r/:hash` is served by the React app rather than returning a 404.
+
+### Environment Variables
+No environment variables are required for the core application. The app is fully functional with zero configuration.
 
 ---
 
-## 9. Known Risks and Technical Debt
+## 7. Known Risks and Open Questions
 
-| Risk | Severity | Mitigation / Status |
+| Risk | Severity | Notes |
 |---|---|---|
-| Admin analytics token `SECRET123` hardcoded in `AnalyticsPage.tsx` | **High** | Move to env var. Anyone who reads the source code can access the analytics dashboard. |
-| IPinfo API token hardcoded in `enrich-analytics/index.ts` | **Medium** | Move to `Deno.env.get('IPINFO_TOKEN')` |
-| Gmail SMTP for transactional email | **Medium** | Acceptable at low volume; migrate to Resend or SendGrid if send volume exceeds ~100/day |
-| `unsubscribeUrl` in `send-vark-report` hardcoded to `vark-questionnaire.netlify.app` | **Medium** | Should use the actual deployed domain. Update to use an env var. |
-| Logo URL in email hardcoded to `vark-questionnaire.netlify.app` | **Low** | Update to Vercel URL or a CDN asset |
-| `quiz_responses` RLS allows anonymous INSERT without rate limiting | **Low** | Honeypot + reCAPTCHA mitigate abuse; could add pg-based rate limit if needed |
-| No test suite | **Low** | No unit or integration tests exist; add Vitest + React Testing Library for critical paths |
-| `scores` field in `quiz_responses` is `any` in TypeScript types | **Low** | Should be typed as `VarkScores` |
+| `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
+| Shareable URL encodes scores only, not full answer breakdown | **Low** | Accepted tradeoff — scores are sufficient to generate prompts and render results |
+| No analytics — no visibility into quiz completion or prompt copy rates | **Medium** | Success metrics defined in PRD have no current collection mechanism; consider adding privacy-preserving analytics (e.g. Plausible, Fathom) |
+| No test suite | **Low** | Add Vitest for `calculateScores` and `generateAIPrompts` — both are pure functions and easy to test |
+| AI prompt copy rate cannot be measured without some form of event tracking | **Medium** | The primary success metric (prompt copy rate) requires at least minimal client-side event tracking to measure |
