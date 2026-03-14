@@ -1,6 +1,6 @@
 # PRD — Varkly
 
-**Version:** 2.0  
+**Version:** 3.0  
 **Last updated:** 2026-03-14  
 **Status:** Active development
 
@@ -32,6 +32,8 @@ Varkly is a 13-question VARK framework assessment that determines how a person b
 Each of the 13 questions presents a real-world scenario with four response options — one anchored to each VARK dimension. Users can select multiple answers per question. Their final scores are the raw counts of each dimension selected across the full assessment.
 
 A user's **dominant style** is the dimension with the highest score. If two or more dimensions tie for the highest score, the user is **multimodal** — meaning they draw on more than one style with equal strength.
+
+**Varkly is entirely stateless.** No user data is collected, no accounts are required, and nothing is stored on a server. All scoring happens in the browser. Results live in the URL.
 
 ---
 
@@ -223,25 +225,17 @@ Interested in learning science and personal development. Will take the quiz to u
 - As a user, the Conversation Prompt tells the AI what I need in a single paste — I shouldn't need to add context or edit it.
 - As a user, I understand the difference between the System Prompt and the Conversation Prompt, and when to use each.
 
-### Email & Return
-
-- As a user who provides an email, I receive a copy of my results and both AI prompts by email so that I can find them again without returning to the site.
-- As a returning user, I can look up my past results by entering my email so that I can retrieve my prompts if I've lost them.
-- As an emailed user, I can unsubscribe from future Varkly emails via a link in the email footer.
-
 ---
 
 ## 8. Success Metrics
 
-Success for Varkly is measured primarily on prompt adoption and return behaviour — not quiz completion in isolation.
+Success for Varkly is measured primarily on prompt adoption — the degree to which users take the generated prompts and put them to use.
 
 | Metric | Definition | Target |
 |---|---|---|
 | **System Prompt copy rate** | % of results page visitors who copy the System Prompt | > 40% |
 | **Conversation Prompt copy rate** | % of results page visitors who copy the Conversation Prompt | > 30% |
 | **Both prompts copied** | % of results page visitors who copy both prompts | > 20% |
-| **Return rate via /my-results** | % of emailed users who return to retrieve their prompts within 30 days | > 15% |
-| **Email capture rate** | % of quiz starters who voluntarily provide their email | > 25% |
 | **Quiz completion rate** | % of users who reach `/quiz` and complete all 13 questions | > 70% |
 | **Shareable URL engagement** | % of shared result URLs that are opened by someone other than the original user | Tracked; no initial target |
 | **Prompt-to-share ratio** | % of users who both copy a prompt and share their results URL | Tracked; indicates high-value session |
@@ -250,15 +244,18 @@ Success for Varkly is measured primarily on prompt adoption and return behaviour
 
 - If the System Prompt copy rate is high but the Conversation Prompt rate is low, consider improving the explanation of when to use the conversation prompt.
 - If quiz completion is high but prompt copy rate is low, the results page is not effectively communicating the value of the prompts — investigate copy, placement, or visual treatment.
-- Return rate via `/my-results` is the strongest signal of lasting value: a user who comes back for their prompts has incorporated Varkly into their AI workflow.
 
 ---
 
 ## 9. Out of Scope (for this version)
 
+- Email capture, email delivery, or any server-side data persistence
+- User accounts or authentication
+- Historical results lookup
+- Unsubscribe flows
+- Admin analytics dashboards
 - AI prompt personalisation beyond VARK score (e.g. topic-specific prompts, tone customisation)
 - Direct AI integrations (e.g. a browser extension that auto-pastes the system prompt)
-- User accounts or authentication
 - Team or organisational dashboards
 - Prompt effectiveness tracking (whether the prompts actually improve AI responses for users)
 - A/B testing of prompt copy variations
