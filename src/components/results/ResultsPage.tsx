@@ -216,9 +216,9 @@ const ResultsPage: React.FC = () => {
                 </div>
               </div>
 
-              <ResultsExplanation dominantStyles={dominantStyles} />
-
               <AIPromptsCard scores={scores} />
+
+              <ResultsExplanation dominantStyles={dominantStyles} />
 
               <div className="card">
                 <div className="flex items-start justify-between gap-4 mb-4">
