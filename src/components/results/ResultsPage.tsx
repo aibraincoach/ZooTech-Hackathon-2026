@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuiz } from '../../contexts/QuizContext';
-import { Share2, RotateCcw, Copy } from 'lucide-react';
+import { Share2, RotateCcw, Copy, Link } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ResultsChart from './ResultsChart';
 import ResultsExplanation from './ResultsExplanation';
@@ -15,6 +15,7 @@ const ResultsPage: React.FC = () => {
   const [resultsUrl, setResultsUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
+  const [copyLinkSuccess, setCopyLinkSuccess] = useState<boolean>(false);
   const { hash } = useParams();
   const navigate = useNavigate();
 
@@ -62,6 +63,16 @@ const ResultsPage: React.FC = () => {
       await navigator.clipboard.writeText(resultsUrl);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+    } catch {
+      alert('Could not copy to clipboard. Please copy the URL manually.');
+    }
+  };
+
+  const copyResultsLink = async () => {
+    try {
+      await navigator.clipboard.writeText(resultsUrl);
+      setCopyLinkSuccess(true);
+      setTimeout(() => setCopyLinkSuccess(false), 2000);
     } catch {
       alert('Could not copy to clipboard. Please copy the URL manually.');
     }
@@ -199,6 +210,36 @@ const ResultsPage: React.FC = () => {
               <ResultsExplanation dominantStyles={dominantStyles} />
 
               <AIPromptsCard scores={scores} />
+
+              <div className="card">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-xl shrink-0">
+                      <Link className="w-4 h-4 text-violet-600 dark:text-violet-400" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 dark:text-gray-100 mb-0.5">Your results link</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Bookmark or share this URL to return to your results any time — no retake needed.</p>
+                    </div>
+                  </div>
+                  <motion.button
+                    onClick={copyResultsLink}
+                    className={`shrink-0 flex items-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-2xl border-2 transition-all duration-200 active:scale-[0.98] ${
+                      copyLinkSuccess
+                        ? 'bg-emerald-500 border-emerald-500 text-white'
+                        : 'text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-700 hover:text-white hover:bg-violet-500 hover:border-violet-500'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Copy className="w-4 h-4" strokeWidth={2.5} />
+                    <span>{copyLinkSuccess ? 'Copied!' : 'Copy link'}</span>
+                  </motion.button>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 px-3 py-2.5 rounded-xl border border-gray-100 dark:border-gray-700 overflow-x-auto">
+                  <span className="text-sm text-gray-600 dark:text-gray-300 font-mono whitespace-nowrap select-all">{resultsUrl}</span>
+                </div>
+              </div>
 
               <div className="card text-center">
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Want to try again?</h3>
