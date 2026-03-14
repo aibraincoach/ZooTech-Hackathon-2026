@@ -45,8 +45,8 @@ const QuizContainer: React.FC = () => {
       <div className="py-6 px-4">
       <div className="max-w-3xl mx-auto mb-6 px-4">
         <div className="flex justify-between items-center mb-2">
-          <p className="text-sm text-gray-600">Question {quizState.currentQuestionIndex + 1} of {questions.length}</p>
-          <p className="text-sm text-gray-600">{Math.round(((quizState.currentQuestionIndex + 1) / questions.length) * 100)}% complete</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Question {quizState.currentQuestionIndex + 1} of {questions.length}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{Math.round(((quizState.currentQuestionIndex + 1) / questions.length) * 100)}% complete</p>
         </div>
         <ProgressBar current={quizState.currentQuestionIndex} total={questions.length} />
       </div>
@@ -56,7 +56,7 @@ const QuizContainer: React.FC = () => {
       </AnimatePresence>
       
       <motion.div 
-        className="mt-8 text-center text-gray-500 text-xs"
+        className="mt-8 text-center text-gray-500 dark:text-gray-400 text-xs"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.7 }}
