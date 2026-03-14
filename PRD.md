@@ -1,244 +1,264 @@
-# PRD — Varkly: VARK Learning Style Quiz
+# PRD — Varkly
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Last updated:** 2026-03-14  
 **Status:** Active development
 
 ---
 
-## 1. Product Overview
+## 1. Problem Statement
 
-Varkly is a web-based VARK learning style assessment tool. Users answer 13 scenario-based, humorous multiple-choice questions and instantly receive a personalised results page showing their Visual, Auditory, Read/Write, and Kinesthetic (VARK) scores, dominant style explanations, and coaching tips. An optional email capture delivers a detailed coaching report. Results are shareable via a unique URL that encodes the scores — no login required.
+Most people interact with AI assistants the same way every day: they type a question, get a generic response, and never think to tell the AI how they actually want to receive information. The AI defaults to a one-size-fits-all communication style that works for nobody in particular.
 
-The app is built for the **AI Brain Coach** brand and features a recurring humorous persona named **RayRayRay** throughout the UI and emails.
+This is a solved problem in human learning science. The VARK framework has been used for decades to categorise how people best absorb and process new information across four dimensions: **Visual**, **Auditory**, **Read/Write**, and **Kinesthetic**. But almost no one applies this knowledge to their AI usage — not because they don't want to, but because the cognitive overhead of figuring out their own VARK profile and then translating it into a usable AI prompt is too high.
 
----
+**Varkly eliminates that overhead entirely.**
 
-## 2. User Personas
-
-### Persona A — The Self-Improver
-- Age 25–45, professional or student
-- Interested in personal development, productivity, and understanding how they think
-- Has heard of learning styles before but never formally assessed themselves
-- Primary motivation: "I want to learn faster and stop wasting time on methods that don't work for me"
-
-### Persona B — The Coaching Client
-- Onboarding as an AI Brain Coach client
-- Needs their learning style assessed as part of a coaching intake workflow
-- Will use results to personalise their coaching sessions
-
-### Persona C — The Coach / Tool Explorer
-- Educator, coach, HR professional, or parent
-- Exploring tools to use with students, clients, or children
-- Wants to understand the methodology before recommending it
-
-### Persona D — The Casual Curious
-- Arrived via social share, friend recommendation, or search
-- Low commitment — will take the quiz for fun
-- May or may not provide an email
+A user takes a 13-question assessment. Varkly scores their VARK profile. Then it generates two ready-to-use AI prompts — one to paste into any AI tool before a conversation begins, one to drop into any live conversation mid-session. The user never has to explain how they learn to an AI again.
 
 ---
 
-## 3. User Stories
+## 2. What Varkly Is
 
-### Core Quiz Flow
-- As a user, I can take the 13-question VARK quiz without creating an account so that the barrier to entry is zero.
-- As a user, I can select multiple answers per question so that I can honestly reflect my mixed preferences.
-- As a user, I can skip a question so that I'm not forced to choose an answer that doesn't fit.
-- As a user, I can go back to a previous question so that I can change my answer.
-- As a user, my quiz progress is saved if I accidentally refresh the page so that I don't lose my answers.
-- As a user, I see a progress indicator while taking the quiz so that I know how far along I am.
+Varkly is a 13-question VARK framework assessment that determines how a person best receives and processes information across four dimensions:
+
+| Dimension | Code | Description |
+|---|---|---|
+| Visual | V | Processes information through spatial organisation, diagrams, charts, colour, and visual structure |
+| Auditory | A | Processes information through listening, discussion, spoken explanation, and verbal patterns |
+| Read/Write | R | Processes information through words — reading, taking notes, written lists, and definitions |
+| Kinesthetic | K | Processes information through experience, examples, practice, and physical engagement with material |
+
+Each of the 13 questions presents a real-world scenario with four response options — one anchored to each VARK dimension. Users can select multiple answers per question. Their final scores are the raw counts of each dimension selected across the full assessment.
+
+A user's **dominant style** is the dimension with the highest score. If two or more dimensions tie for the highest score, the user is **multimodal** — meaning they draw on more than one style with equal strength.
+
+---
+
+## 3. Why It Exists
+
+The core purpose of Varkly is to reduce the cognitive load of humans interacting with AI.
+
+Most people don't know how to prompt AI in a way that matches how they actually learn and think. When a Visual learner asks ChatGPT to explain a concept, they get prose. When a Kinesthetic learner asks Claude for guidance, they get bullet-pointed theory. The AI isn't wrong — it's just not calibrated to the person.
+
+Varkly solves that by turning a person's VARK score into two immediately usable AI prompts. The quiz is the mechanism. The prompts are the product.
+
+---
+
+## 4. The Core Output: Two AI Prompts
+
+### 4.1 System Prompt
+
+**What it is:** A prompt the user pastes into any AI tool before a conversation begins — into ChatGPT's "Custom Instructions", Claude's "System Prompt", a GPT's system field, or any equivalent configuration layer.
+
+**What it does:** Pre-configures the AI to deliver all information in the communication style that matches the user's VARK profile. This is **proactive** — set it once, and every conversation benefits automatically without the user having to think about it.
+
+**When to use it:** At the start of setting up any AI tool for ongoing use. A one-time paste that changes how every future session feels.
+
+**Character and tone constraints:**
+- Must be written in first person ("I am a...")
+- Must be direct and instruction-oriented — the AI will act on it
+- Must specify the dominant VARK dimension(s) by name
+- Must include concrete instructions for how the AI should structure responses
+- Must include a check-in instruction for when the user seems confused
+- Target length: 100–150 words
+
+**Example — Visual dominant (V=9, A=2, R=1, K=1):**
+> I am a Visual learner (VARK: V=9, A=2, R=1, K=1). When explaining anything, structure your response with clear visual hierarchy: headers, sub-headers, and bullet points over long prose. Use diagrams, flowcharts, tables, and spatial metaphors wherever useful. If you're describing a process, map it out step-by-step with visible structure rather than embedding it in sentences. Avoid dense unbroken paragraphs. When I seem confused or ask for clarification, default to offering a diagram, a visual analogy, or a restructured layout of the same information.
+
+**Example — Kinesthetic dominant (V=2, A=1, R=2, K=8):**
+> I am a Kinesthetic learner (VARK: V=2, A=1, R=2, K=8). When explaining anything, ground it in a real-world example or scenario first, before introducing theory. I learn by doing and by seeing how something applies in practice. Walk me through concrete cases, step-by-step instructions I can follow, or exercises I can try. Avoid leading with definitions or abstract concepts. When I seem confused, offer a different example or a practical exercise rather than rephrasing the theory.
+
+---
+
+### 4.2 Conversation Prompt
+
+**What it is:** A short, reusable prompt the user drops into any existing AI conversation to immediately reorient the AI's communication style. No setup required — works in any chat window, with any AI, at any point in a session.
+
+**What it does:** Reactively recalibrates an AI that has drifted into a communication style that isn't working. One sentence changes the rest of the conversation.
+
+**When to use it:** Mid-session, when a response lands wrong. When the AI gives an abstract explanation to someone who needed an example. When it gives a wall of text to someone who needed a diagram. Copy, paste, move on.
+
+**Character and tone constraints:**
+- Maximum 2 sentences
+- Conversational and direct — this gets pasted into a live chat
+- Must name the VARK style
+- Must contain a clear, specific reorientation instruction
+- Target length: 25–40 words
+
+**Example — Visual dominant:**
+> I'm a Visual learner — I process information better with structure, diagrams, and visual organisation than with prose. Can you reframe your last response using headers, a table, or a visual breakdown?
+
+**Example — Auditory dominant:**
+> I'm an Auditory learner — I follow explanations better when they're conversational and talk me through things step by step. Can you walk me through that again as if you're explaining it out loud?
+
+**Example — Read/Write dominant:**
+> I'm a Read/Write learner — I absorb information best through clear written definitions, structured lists, and labelled terminology. Can you restate that as a numbered list or a defined set of terms?
+
+**Example — Kinesthetic dominant:**
+> I'm a Kinesthetic learner — theory doesn't land for me until I can see how it applies. Can you give me a concrete real-world example or a step-by-step walkthrough I can follow?
+
+---
+
+## 5. VARK Score-to-Prompt Generation Logic
+
+This is a first-class product requirement. The generation logic must be deterministic, transparent, and accurate to the user's actual score profile.
+
+### 5.1 Determining Dominant Style
+
+```
+dominantScore = max(V, A, R, K)
+dominantStyles = all dimensions where score === dominantScore
+```
+
+- If `dominantStyles.length === 1` → single-style prompt
+- If `dominantStyles.length === 2` → two-style multimodal prompt
+- If `dominantStyles.length === 3` or `4` → broad multimodal prompt
+
+### 5.2 Score Context in Prompts
+
+Every generated prompt must include the user's actual VARK scores (e.g. `V=9, A=2, R=1, K=1`). This serves two functions:
+
+1. It grounds the AI's understanding — it knows the relative weighting, not just the dominant label
+2. It allows the user to see the score directly in the prompt they're pasting, building confidence that it reflects their real result
+
+### 5.3 Style Instruction Bank
+
+Each dimension maps to a fixed set of communication instructions. These instructions are combined when generating multimodal prompts.
+
+**Visual (V):**
+- Structure responses with headers, sub-headers, and bullet points
+- Use diagrams, tables, flowcharts, and spatial metaphors
+- Map processes step-by-step with visible structure
+- Avoid dense unbroken prose
+- Offer diagrams or restructured layouts when clarification is needed
+
+**Auditory (A):**
+- Use conversational language and rhetorical questions
+- Walk through explanations verbally, step by step, as if speaking
+- Use rhythm, analogy, and dialogue patterns
+- Avoid dry bullet lists — write as you would speak
+- Offer to re-explain using a different verbal framing when asked to clarify
+
+**Read/Write (R):**
+- Use precise written definitions, numbered lists, and labelled terminology
+- Provide structured summaries with headings and sub-points
+- Reference exact words and defined concepts rather than analogies
+- Avoid visual metaphors — convey meaning through written precision
+- Offer a written outline or definitions-first restatement when clarifying
+
+**Kinesthetic (K):**
+- Lead with a concrete real-world example or scenario before theory
+- Provide step-by-step instructions the user can actually follow
+- Frame explanations around doing: "here's how you'd apply this"
+- Avoid opening with abstract definitions or conceptual overviews
+- Offer a different example or practical exercise when clarifying
+
+### 5.4 Multimodal Blending Rules
+
+When two styles tie for dominant:
+- Both style instruction sets are included in the system prompt, ordered by score descending (or alphabetically if tied)
+- The check-in instruction references both styles
+- The conversation prompt mentions both styles by name
+
+When three or more styles tie:
+- The system prompt describes the user as a "highly multimodal learner" and notes their adaptability
+- The conversation prompt asks the AI to vary its format freely across styles
+
+### 5.5 Generation Constraints
+
+- System prompt: 100–150 words maximum
+- Conversation prompt: 25–40 words maximum
+- Both prompts must be copy-ready — no placeholders, no ellipsis, no formatting instructions to the user
+- Both prompts must work when pasted cold into a new AI session with no surrounding context
+
+---
+
+## 6. User Personas
+
+### The AI Power User
+Uses multiple AI tools daily (ChatGPT, Claude, Gemini, Perplexity). Knows that prompting matters but hasn't had a systematic way to configure their tools for how they think. Will immediately see the value of the system prompt and use it.
+
+### The AI Beginner
+Has started using AI tools but finds the responses hit-or-miss. Doesn't know why some explanations click and others don't. Varkly gives them a vocabulary and a practical fix for the friction they've been experiencing.
+
+### The Coaching Client
+Onboarding with a coach or educator who has sent them to Varkly as part of an intake process. Comes with a specific purpose. Will likely read the full results and use both prompts.
+
+### The Curious Self-Improver
+Interested in learning science and personal development. Will take the quiz to understand themselves better. May or may not be a heavy AI user today, but the prompts are a useful takeaway regardless.
+
+---
+
+## 7. User Stories
+
+### Assessment
+
+- As a user, I can complete the 13-question VARK assessment without creating an account so that the barrier to entry is zero.
+- As a user, I can select multiple answers per question so that I can represent genuinely mixed preferences rather than forcing a single choice.
+- As a user, I can skip a question so that I'm not blocked by a scenario that doesn't apply to me.
+- As a user, I can go back to a previous question so that I can reconsider an answer.
+- As a user, my progress is preserved if I refresh the page so that I don't lose my answers mid-quiz.
+- As a user, I see a progress indicator so that I know how many questions remain.
 
 ### Results
-- As a user, I see my VARK scores displayed immediately after completing the quiz so that I get instant gratification.
-- As a user, I receive an explanation of my dominant learning style(s) and specific tips so that I know how to act on the results.
-- As a user, I receive a unique shareable URL for my results so that I can share them with others or return to them later.
-- As a user, I can copy the shareable URL to my clipboard or use the native share sheet.
-- As a user, I can retake the quiz from the results page.
 
-### Email & Report
-- As a user who provided an email, I receive a personalised HTML coaching report by email after completing the quiz.
-- As a user, I can optionally provide my name, email, and reason for taking the quiz before starting — or skip and take the quiz anonymously.
-- As a subscribed user, I can unsubscribe from Varkly emails via a unique link in every email.
-- As an unsubscribed user, I can re-subscribe from the unsubscribe page.
+- As a user, I see my four VARK dimension scores immediately after completing the assessment.
+- As a user, I see which dimension(s) are dominant and what that means for how I process information.
+- As a user, I receive a shareable URL for my results that I can bookmark or send to others.
+- As a user accessing a shared result URL, I can see the full results without taking the quiz myself.
 
-### My Results
-- As a returning user, I can look up all my past quiz attempts by entering my email on the `/my-results` page.
+### System Prompt
 
-### AI Prompts (Planned Feature)
-- As a user, after completing the quiz I can see two generated AI prompts on my results page:
-  1. A **system prompt** I can paste into any AI assistant (ChatGPT, Claude, etc.) to configure it to always communicate in a way that matches my VARK learning style.
-  2. A **conversation starter prompt** — a short, reusable line I can drop into any existing AI chat mid-session to redirect the AI's communication style to suit how I learn.
-- As a user, I can copy either prompt with a single click.
-- The goal is to eliminate the cognitive load of explaining how I learn to an AI ever again.
+- As a user, I see a generated System Prompt on my results page that I can copy with a single click.
+- As a user, the System Prompt reflects my actual VARK scores — not a generic template — so I can trust it represents me.
+- As a user, the System Prompt is short enough to paste into any AI tool without reading it first — I shouldn't need to edit it.
+- As a user, I understand what the System Prompt is for, presented clearly on the results page before I copy it.
+- As a user accessing my results via a shared URL, I also see the System Prompt so I can use it even if someone else sent me the link.
 
----
+### Conversation Prompt
 
-## 4. Existing Routes & Features
+- As a user, I see a generated Conversation Prompt on my results page that I can copy with a single click.
+- As a user, the Conversation Prompt is short enough that I can memorise or quickly find it during a live AI session.
+- As a user, the Conversation Prompt tells the AI what I need in a single paste — I shouldn't need to add context or edit it.
+- As a user, I understand the difference between the System Prompt and the Conversation Prompt, and when to use each.
 
-| Route | Component | Description |
-|---|---|---|
-| `/` | `LandingPage` | Hero, VARK style grid, email capture CTA, "Start Quiz" button |
-| `/quiz` | `QuizContainer` | 13-question quiz with multi-select, skip, back navigation, and progress bar |
-| `/results` | `ResultsPage` | Live quiz result: chart, explanation, share URL, email status |
-| `/r/:hash` | `ResultsPage` | Shareable result: scores decoded from base64 hash in URL |
-| `/my-results` | `MyResultsPage` | Email-based historical results lookup |
-| `/u/:id` | `UnsubscribePage` | Unsubscribe / re-subscribe email preferences |
-| `/analytics` | `AnalyticsPage` | Token-protected admin analytics dashboard |
+### Email & Return
 
-### Landing Page (`/`)
-- Sticky nav with logo, "My results" link, and theme toggle
-- Hero headline and subheading
-- "Why is your brain ignoring half of what you learn?" copy section
-- Optional email capture modal (first name, email, reason, honeypot, reCAPTCHA v3)
-- 4-style grid (Visual, Auditory, Read/Write, Kinesthetic)
-- Primary CTA: "Start Your Free Quiz (Press Enter)"
-- Enter key shortcut to start quiz
-
-### Email Capture Modal
-- Fields: first name (optional), email (required), reason (required dropdown), custom reason (conditional text input, 127 char limit)
-- Hidden honeypot field
-- reCAPTCHA v3 token attached to submission
-- Immediately inserts a placeholder `quiz_responses` row (with zeros) when submitted — record ID is carried through quiz to be updated on completion
-- Rotating playful loading messages while saving
-
-### Quiz (`/quiz`)
-- `QuizProvider` context manages all state in `sessionStorage`
-- Index `-1` = intro screen; `0–12` = questions; completion triggers `/results` navigate
-- Multi-select per question (answers stored as `Record<number, string[]>`)
-- Back / forward / skip controls
-- `ProgressBar` shows completion percentage
-- `QuizIntro` screen before question 1
-
-### Results Page (`/results` and `/r/:hash`)
-- On fresh completion: updates existing `quiz_responses` row with final scores + answers + results URL (if email was captured), or inserts a new anonymous row
-- Triggers `send-vark-report` Edge Function if email was provided
-- `ResultsChart` renders VARK bar/radar chart using Recharts
-- `ResultsExplanation` shows per-style tips and a RayRayRay coaching quote
-- Share UI: copy button + native Web Share API fallback
-- Results URL format: `https://varkly.app/r/<btoa("V-A-R-K").replace(/=/g, '')>`
-- Decoded on load from `useParams().hash`
-- Status banners for save (saving/saved/error) and email (sending/sent/error)
-
-### My Results (`/my-results`)
-- Email input → calls `get-my-results` Edge Function
-- Returns list of past attempts with date, dominant style label, and link to results URL
-
-### Unsubscribe (`/u/:id`)
-- Looks up `quiz_responses` record by UUID
-- Shows reason-specific humorous acknowledgment (using original reason they gave for taking the quiz)
-- One-click unsubscribe or re-subscribe
-- States: loading, found, unsubscribed, resubscribed, error, not-found
-
-### Admin Analytics Dashboard (`/analytics?admin_token=SECRET123`)
-- Token-protected (hardcoded `SECRET123` in client — see Known Risks)
-- Multi-site support via site filter
-- Charts: visitors per day (LineChart), device type breakdown (PieChart)
-- Tables: top IPs (with DNS lookup links), top ISPs/orgs, top referral domains, top cities
-- Raw visit log with session, timestamp, IP, page path, device, browser, OS, city, ISP, duration
-- Expandable rows for per-site path breakdown
-
-### Visitor Tracking
-- `VisitorTracker` invisible component mounted in `App.tsx` — calls `trackVisitor()` on mount and `trackPageView()` on route changes
-- Tracks: session ID, page path, referrer + domain/path, UTM params, browser/OS/device type, screen/viewport dimensions, language, timezone, page load duration
-- Skips in development mode, on dev domains, and for bots
-- Enriched server-side via `enrich-analytics` Edge Function using IPinfo API (city, region, country, org/ISP)
-- time-on-page tracked via `beforeunload` and `visibilitychange` events
-
----
-
-## 5. Supabase Edge Functions
-
-| Function | Trigger | Purpose |
-|---|---|---|
-| `send-vark-report` | Called from `ResultsPage` after quiz completion | Validates honeypot + reCAPTCHA, generates HTML/text email, sends via Gmail SMTP (nodemailer), logs to `emails` table |
-| `enrich-analytics` | Called from `VisitorTracker` after inserting analytics row | Looks up IP via IPinfo API, updates `visitor_analytics` rows with city/region/country/ISP |
-| `get-my-results` | Called from `MyResultsPage` | Queries `quiz_responses` by email, returns id/created_at/results_url/scores |
-| `analytics-data` | Called from `AnalyticsPage` | Returns aggregated analytics for a single site |
-| `analytics-data-enriched` | Called from `AnalyticsPage` | Returns enriched analytics data |
-| `analytics-data-multi-site` | Called from `AnalyticsPage` | Returns aggregated analytics across multiple tracked domains |
-
----
-
-## 6. Technical Requirements
-
-### Frontend
-- React 18 + TypeScript; SPA with React Router v6
-- Vite 5 build toolchain; Tailwind CSS v3 for styling
-- Framer Motion for page/component animations
-- Recharts for score visualisation
-- `ua-parser-js` for browser/device detection in analytics
-- All quiz state persisted in `sessionStorage`
-- Dark/light mode persisted in `localStorage`, applied via a flash-prevention inline script in `index.html`
-- Google Fonts: Inter (400, 500, 600, 700)
-
-### Backend / Data
-- Supabase PostgreSQL database (hosted)
-- Supabase Edge Functions (Deno runtime)
-- Email delivery via Gmail SMTP with nodemailer inside the Edge Function
-- IP geolocation via IPinfo API
-
-### Security
-- Google reCAPTCHA v3 on email capture form and email send action
-- Honeypot field (`hp_field`) checked both client-side and in Edge Function before any DB write
-- IP address + user agent logged on all quiz submissions (including anonymous)
-- Analytics dashboard protected by a query-parameter token (currently hardcoded — must be moved to env var)
-- Supabase RLS: `quiz_responses` insertable by anon; `visitor_analytics` insertable by anon, readable only by service role
-
-### Deployment
-- Vercel (SPA rewrites configured in `vercel.json`)
-- Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_RECAPTCHA_SITE_KEY`
-- Edge Function env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GMAIL_ADDRESS`, `GMAIL_APP_PASSWORD`, `RECAPTCHA_SECRET`
-
----
-
-## 7. Planned Feature: AI Prompts for Learning Style
-
-### Problem Statement
-Every time a user starts a new AI assistant session, they have to manually explain how they like to receive information. This is repetitive, forgettable, and creates cognitive friction. Most people don't do it at all, which means the AI defaults to a generic communication style that may not suit them.
-
-### Solution
-After completing the VARK quiz, the results page will generate two ready-to-use AI prompts personalised to the user's specific VARK score profile:
-
-#### Prompt 1 — System Prompt (paste once, into the AI's "system" or "custom instructions" field)
-A paragraph the user pastes into tools like ChatGPT's "Custom Instructions", Claude's "System Prompt", or any other AI assistant configuration. It tells the AI:
-- The user's dominant learning style(s) and scores
-- How to structure explanations (e.g. use diagrams/visuals, bullet lists, analogies for hands-on examples, verbal walkthroughs, etc.)
-- How to check in and adapt if a response isn't landing
-
-**Example output (Visual dominant):**
-> "I'm a Visual learner (VARK scores: V=9, A=2, R=1, K=1). When explaining concepts, please use diagrams, flowcharts, spatial metaphors, and visual analogies where possible. Structure information with clear visual hierarchy — headers, callout boxes, and bullet points. Avoid long unbroken prose. When I seem confused, offer to draw a diagram or reframe the explanation visually."
-
-#### Prompt 2 — Mid-Session Redirect Prompt (short, drop into any chat)
-A 1–2 sentence prompt the user keeps saved and drops into any ongoing conversation to realign the AI's communication style mid-session.
-
-**Example output (Visual dominant):**
-> "Quick reminder: I'm a Visual learner. Please reframe that explanation using a diagram, spatial structure, or visual analogy."
-
-### Implementation Notes
-- Prompts are generated entirely client-side from the VARK scores — no new API calls required
-- Each VARK style (and multimodal combination) has a template bank
-- A dominant style is determined the same way as elsewhere in the app: highest score(s)
-- Displayed in a new card on the results page below `ResultsExplanation`, with one-click copy buttons for each prompt
-- No new database schema changes required
-- Prompts should be in the email report as well (future iteration)
-
-### Success Criteria
-- Both prompts are accurate to the user's actual VARK profile
-- Copy button works reliably across browsers
-- Prompts are concise enough to be genuinely usable (system prompt ≤ 150 words, redirect prompt ≤ 40 words)
+- As a user who provides an email, I receive a copy of my results and both AI prompts by email so that I can find them again without returning to the site.
+- As a returning user, I can look up my past results by entering my email so that I can retrieve my prompts if I've lost them.
+- As an emailed user, I can unsubscribe from future Varkly emails via a link in the email footer.
 
 ---
 
 ## 8. Success Metrics
 
-| Metric | Target |
-|---|---|
-| Quiz completion rate | > 70% of users who reach `/quiz` complete all 13 questions |
-| Email capture rate | > 25% of quiz starters voluntarily provide email |
-| Email delivery rate | > 95% of sent emails successfully delivered |
-| Results page share rate | > 15% of results page visitors copy or share their URL |
-| AI prompt copy rate (new feature) | > 30% of results page visitors copy at least one AI prompt |
-| Return visit rate (via /my-results) | Tracked via analytics |
-| Unsubscribe rate | < 10% of emailed users |
-| Bot/spam rate | < 1% of quiz submissions triggered by bots (honeypot + reCAPTCHA) |
+Success for Varkly is measured primarily on prompt adoption and return behaviour — not quiz completion in isolation.
+
+| Metric | Definition | Target |
+|---|---|---|
+| **System Prompt copy rate** | % of results page visitors who copy the System Prompt | > 40% |
+| **Conversation Prompt copy rate** | % of results page visitors who copy the Conversation Prompt | > 30% |
+| **Both prompts copied** | % of results page visitors who copy both prompts | > 20% |
+| **Return rate via /my-results** | % of emailed users who return to retrieve their prompts within 30 days | > 15% |
+| **Email capture rate** | % of quiz starters who voluntarily provide their email | > 25% |
+| **Quiz completion rate** | % of users who reach `/quiz` and complete all 13 questions | > 70% |
+| **Shareable URL engagement** | % of shared result URLs that are opened by someone other than the original user | Tracked; no initial target |
+| **Prompt-to-share ratio** | % of users who both copy a prompt and share their results URL | Tracked; indicates high-value session |
+
+### Interpretation Notes
+
+- If the System Prompt copy rate is high but the Conversation Prompt rate is low, consider improving the explanation of when to use the conversation prompt.
+- If quiz completion is high but prompt copy rate is low, the results page is not effectively communicating the value of the prompts — investigate copy, placement, or visual treatment.
+- Return rate via `/my-results` is the strongest signal of lasting value: a user who comes back for their prompts has incorporated Varkly into their AI workflow.
+
+---
+
+## 9. Out of Scope (for this version)
+
+- AI prompt personalisation beyond VARK score (e.g. topic-specific prompts, tone customisation)
+- Direct AI integrations (e.g. a browser extension that auto-pastes the system prompt)
+- User accounts or authentication
+- Team or organisational dashboards
+- Prompt effectiveness tracking (whether the prompts actually improve AI responses for users)
+- A/B testing of prompt copy variations
