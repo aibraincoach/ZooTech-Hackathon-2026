@@ -47,9 +47,14 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
         }
       }
       
-      // Enter to proceed
+      //Enter to proceed — preventDefault stops focused Next from double-firing; defer one tick so
+      // selectOption from a preceding option click is always committed before we advance.
       if (key === 'enter') {
-        goToNextQuestion();
+        e.preventDefault();
+        window.setTimeout(() => {
+          goToNextQuestion();
+        }, 0);
+        return;
       }
       
       // Space to skip
@@ -182,6 +187,7 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
             </motion.button>
             
             <motion.button
+              type="button"
               onClick={goToNextQuestion}
               className={`${hasSelectedOptions ? 'btn-primary' : 'btn-secondary'} text-sm px-4 py-2`}
               initial={{ opacity: 0 }}

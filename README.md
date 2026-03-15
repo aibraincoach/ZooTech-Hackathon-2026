@@ -10,6 +10,17 @@ Varkly is a fast, frictionless web app that helps you discover your VARK learnin
 - **Instant shareable results** — Scores are base64-encoded into a unique URL (`/r/:hash`) that anyone can open without an account or server lookup.
 - **AI Prompts** — Copy-ready system and conversation prompts generated client-side from your VARK scores, ready to paste into any AI tool.
 - **Dark mode** — Full dark/light mode switching persisted in `localStorage`.
+- **Voice quiz** (`/quiz/voice`) — Speak answers; TTS + STT + LLM mapping (see below).
+
+---
+
+## Voice quiz: real-time vs pre-generated audio (demo choice)
+
+**What the codebase supports:** Full **in-browser**, **online-capable** voice processing is wired up: **TTS** (Kokoro) and **STT** (Whisper) run in a Web Worker; answers are mapped to VARK via an LLM. That path is **responsive** once models are loaded—i.e. true **real-time** synthesis and transcription are possible for anyone who runs the app with local or proxied models (see below).
+
+**What we use for the hackathon demo:** Question audio and short confirmations are served from **pre-generated WAV files** (`quiz-audio/q0.wav` … `got-it.wav`, etc.). That keeps **Play** and the first question **instant** for judges and visitors, with no long first-load wait for TTS. It does **not** mean voice is “fake”: the same Kokoro voice and scripts generate those files; the **live** worker path remains available for **Play question** fallbacks, other voices, and development.
+
+**Summary:** Real-time TTS/STT **is** supported in-repo; **pregen** is a **demo speed** choice, not an architectural limit.
 
 ---
 
@@ -100,19 +111,12 @@ npm run dev
 
 No environment variables are required. The app is fully functional with zero configuration.
 
-### Voice quiz and 180s demo (&lt;2s latency)
+### Voice quiz (`/quiz/voice`)
 
-For the voice quiz at `/quiz/voice`, **13 questions in 180 seconds** requires TTS and STT to respond in under ~2 seconds. Use the optional voice backend (OpenAI TTS + Whisper):
-
-1. Add `OPENAI_API_KEY` to `.env` (see [.env.example](.env.example)).
-2. **Terminal 1:** `npm run server` (Express on port 3001).
-3. **Terminal 2:** `npm run dev` (Vite proxies `/api` to the server).
-
-See **[docs/voice-backend.md](docs/voice-backend.md)** for full steps and production deployment.
-
-**Fully local (no OpenAI):** You can instead use small models on your machine: run `npm run download-voice-models` once, then `npm run serve-models` and set `VITE_TTS_MODEL_PROXY_URL=http://localhost:8080` in `.env`. See **[docs/local-voice-models.md](docs/local-voice-models.md)**.
-
-**Pre-generated audio (instant Play):** To make "Play question" start immediately with no TTS wait, pre-generate WAVs once: with `npm run serve-models` running in another terminal, run `npm run pregenerate-quiz-audio`. This writes `public/quiz-audio/q0.wav` … `q12.wav`. The app uses these when present and falls back to live TTS otherwise. You can commit `public/quiz-audio/` so others get instant play without running the script.
+1. **Demo / judges:** Pregenerated WAVs give **immediate** question audio. Generate once: `npm run serve-models` (port 8080) + `npm run pregenerate-quiz-audio` (see [.env.example](.env.example) for `VITE_TTS_MODEL_PROXY_URL` and `VITE_TTS_VOICE`).  
+2. **Live TTS + STT:** Same app can run **real-time** Kokoro + Whisper in the worker once models are available (local proxy or HF). Pregen is optional; if WAVs are missing, **Play question** uses live TTS (slower first time).  
+3. **Optional OpenAI backend** for &lt;2s latency in constrained demos: **[docs/voice-backend.md](docs/voice-backend.md)** — `OPENAI_API_KEY`, `npm run server` + `npm run dev`.  
+4. **Local models:** **[docs/local-voice-models.md](docs/local-voice-models.md)** — `download-voice-models`, `serve-models`, `VITE_TTS_MODEL_PROXY_URL`.
 
 ### Build for production
 

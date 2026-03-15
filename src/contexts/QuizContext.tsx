@@ -70,25 +70,22 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
+  /** Always use functional updates so we never advance from stale index or drop answers still pending from selectOption. */
   const goToNextQuestion = () => {
-    if (quizState.currentQuestionIndex === -1) {
-      setQuizState(prevState => ({
-        ...prevState,
-        currentQuestionIndex: 0,
-      }));
-    } else if (quizState.currentQuestionIndex < questions.length - 1) {
-      setQuizState(prevState => ({
-        ...prevState,
-        currentQuestionIndex: prevState.currentQuestionIndex + 1,
-      }));
-    } else {
+    setQuizState((prevState) => {
+      if (prevState.currentQuestionIndex === -1) {
+        return { ...prevState, currentQuestionIndex: 0 };
+      }
+      if (prevState.currentQuestionIndex < questions.length - 1) {
+        return {
+          ...prevState,
+          currentQuestionIndex: prevState.currentQuestionIndex + 1,
+        };
+      }
       stopSpeechPlayback();
-      setQuizState(prevState => ({
-        ...prevState,
-        isCompleted: true,
-      }));
-      navigate('/results');
-    }
+      queueMicrotask(() => navigate('/results'));
+      return { ...prevState, isCompleted: true };
+    });
   };
 
   const goToPreviousQuestion = () => {
