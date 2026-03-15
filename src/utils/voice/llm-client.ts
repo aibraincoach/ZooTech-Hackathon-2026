@@ -6,7 +6,7 @@ export interface GetAIResponseOptions {
   maxTokens?: number;
 }
 
-/** OpenAI-compatible response shape (OpenRouter, ChatJimmy proxy, etc.) */
+/** OpenAI-compatible response shape (OpenRouter, custom base URL, etc.) */
 interface ChatCompletionResponse {
   choices?: Array<{ message?: { content?: string } }>;
 }
@@ -14,7 +14,7 @@ interface ChatCompletionResponse {
 /**
  * Call an LLM chat API. Supports:
  * - **OpenRouter** (default): set VITE_OPENROUTER_API_KEY.
- * - **ChatJimmy proxy** (Taalas HC1 / Llama 3.1 8B): set VITE_LLM_BASE_URL to the proxy v1 base (e.g. https://private-llm-proxy.redacted.invalid/v1). No API key required.
+ * - **Custom OpenAI-compatible base:** set VITE_LLM_BASE_URL to `https://<host>/v1`. Auth depends on deployment; see team docs.
  * Falls back to a local message if the provider is unavailable or the request fails.
  */
 export async function getAIResponse(
@@ -22,16 +22,16 @@ export async function getAIResponse(
   options: GetAIResponseOptions = {}
 ): Promise<string> {
   const baseUrl = (import.meta.env.VITE_LLM_BASE_URL as string | undefined)?.trim();
-  const useChatJimmy = baseUrl && baseUrl.length > 0;
+  const useCustomBase = baseUrl && baseUrl.length > 0;
 
-  if (useChatJimmy) {
+  if (useCustomBase) {
     return getAIResponseOpenAICompat(baseUrl, prompt, options);
   }
   return getAIResponseOpenRouter(prompt, options);
 }
 
 /**
- * OpenAI-compatible endpoint (e.g. ChatJimmy proxy). No auth required for the proxy.
+ * OpenAI-compatible endpoint at VITE_LLM_BASE_URL.
  */
 async function getAIResponseOpenAICompat(
   baseUrl: string,

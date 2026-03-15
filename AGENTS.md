@@ -19,7 +19,7 @@ Durable workspace facts and correction patterns for agents (Cursor, Cline, and o
 
 - Canonical memory bank is the Cline-origin asset: `.cline/memory-bank/` under the repo root (not `memory-bank/` at root or a generic docs file). Schema is exactly five files — `00_project-brief.md`, `01_current-goal.md`, `02_decisions.md`, `03_progress-log.md`, `04_open-questions.md` — per the user’s global Cline rules; do not substitute other file names (e.g. `projectbrief.md`, `activeContext.md`).
 - The voice folder at `@/Users/jj/voice/` is for project assistance only; it is not inside the repo and must not be git-tracked.
-- App is frontend-only demo: no database, no email capture, no persistent quiz data. Voice VARK mapping uses `VITE_LLM_BASE_URL` (e.g. ChatJimmy proxy) and/or OpenRouter; no OpenAI required for TTS/STT when using local models.
+- App is frontend-only demo: no database, no email capture, no persistent quiz data. Voice VARK mapping uses `VITE_OPENROUTER_API_KEY` and/or team-only `VITE_LLM_BASE_URL` (never commit real proxy hosts). No OpenAI required for TTS/STT when using local models.
 - Implementation base for team work is the teammate’s fork (e.g. `aibraincoach/ZooTech-Hackathon-2026`); work on a branch of that fork and pull from fork/main as needed.
 - When working with collaborators, avoid large or breaking changes to shared code where possible; some code cannot be changed freely.
 - Voice quiz route: `/quiz/voice`. Register it in the router before `/quiz` so `/quiz/voice` matches correctly. Lazy-load the voice quiz chunk so the landing page is not blocked by large TTS/STT bundles.

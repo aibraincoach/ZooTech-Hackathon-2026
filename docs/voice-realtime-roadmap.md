@@ -4,7 +4,7 @@
 1. **Question audio** — Solved with pregenerated WAVs (instant).
 2. **User speaks** — Hold to record; on release, blob is sent.
 3. **STT** — Full blob → backend `/api/stt` or worker Whisper. This is the main wait (network or CPU inference).
-4. **VARK classification** — LLM call (you have ChatJimmy proxy; can be fast).
+4. **VARK classification** — LLM call (OpenRouter or custom base in `.env`; can be fast).
 5. **Confirmation** — Pregenerated "Got it" WAV (instant when file exists).
 
 So the biggest remaining latency is **STT**: we only start transcribing *after* the user releases the mic, and then we wait for the full result.
@@ -32,7 +32,7 @@ Start VARK classification as soon as you have a *partial* transcript (e.g. from 
 ### 4. **Faster / smaller models**  
 - **STT:** Smaller Whisper or a streaming-capable model in the worker; or rely on backend if it’s faster.  
 - **TTS:** You already stream Kokoro chunks; pregen covers fixed prompts. For dynamic agent replies, keep using streaming TTS.  
-- **LLM:** ChatJimmy proxy is already low-latency; keep using it for VARK or agent turns.
+- **LLM:** Keep VARK mapping on your chosen low-latency endpoint (see `.env`).
 
 ---
 

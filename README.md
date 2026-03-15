@@ -26,7 +26,7 @@ Varkly is a fast, frictionless web app that helps you discover your VARK learnin
 
 ## Architecture
 
-Varkly is entirely stateless. There is no backend, no database, and no API calls during the quiz or results flow. Everything runs in the browser.
+Varkly is stateless: no accounts, no database for quiz/results. The **text** quiz and **results** page need no server. The **voice** quiz calls an LLM from the browser (OpenRouter or a team-configured base URL in `.env` only)—see Getting Started.
 
 ```
 Browser (React SPA)
@@ -109,7 +109,9 @@ npm install
 npm run dev
 ```
 
-No environment variables are required. The app is fully functional with zero configuration.
+**Text quiz + results:** No env vars required.
+
+**Voice quiz LLM:** Mapping spoken answers to VARK options needs either **`VITE_OPENROUTER_API_KEY`** (see [.env.example](.env.example)) or a team-provided **`VITE_LLM_BASE_URL`** to an OpenAI-compatible API. **Do not commit** private proxy URLs or keys—they are equivalent to API access. Use `.env` locally only; `.env.example` shows placeholders only.
 
 ### Voice quiz (`/quiz/voice`)
 
