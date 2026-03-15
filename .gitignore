@@ -230,6 +230,9 @@ config/local.js
 node_modules/.cache/
 .parcel-cache/
 
+# Local voice models (downloaded by scripts/download-voice-models.mjs)
+local-models/
+
 # Temporary files
 *.tmp
 *.temp

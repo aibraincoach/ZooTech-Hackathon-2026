@@ -100,6 +100,20 @@ npm run dev
 
 No environment variables are required. The app is fully functional with zero configuration.
 
+### Voice quiz and 180s demo (&lt;2s latency)
+
+For the voice quiz at `/quiz/voice`, **13 questions in 180 seconds** requires TTS and STT to respond in under ~2 seconds. Use the optional voice backend (OpenAI TTS + Whisper):
+
+1. Add `OPENAI_API_KEY` to `.env` (see [.env.example](.env.example)).
+2. **Terminal 1:** `npm run server` (Express on port 3001).
+3. **Terminal 2:** `npm run dev` (Vite proxies `/api` to the server).
+
+See **[docs/voice-backend.md](docs/voice-backend.md)** for full steps and production deployment.
+
+**Fully local (no OpenAI):** You can instead use small models on your machine: run `npm run download-voice-models` once, then `npm run serve-models` and set `VITE_TTS_MODEL_PROXY_URL=http://localhost:8080` in `.env`. See **[docs/local-voice-models.md](docs/local-voice-models.md)**.
+
+**Pre-generated audio (instant Play):** To make "Play question" start immediately with no TTS wait, pre-generate WAVs once: with `npm run serve-models` running in another terminal, run `npm run pregenerate-quiz-audio`. This writes `public/quiz-audio/q0.wav` … `q12.wav`. The app uses these when present and falls back to live TTS otherwise. You can commit `public/quiz-audio/` so others get instant play without running the script.
+
 ### Build for production
 
 ```bash
@@ -115,6 +129,17 @@ The output is in `dist/`. The included `vercel.json` configures SPA rewrites for
 | Command | Description |
 |---|---|
 | `npm run dev` | Start the local development server |
+| `npm run server` | Voice backend (TTS + STT) on port 3001; needs `OPENAI_API_KEY` |
 | `npm run build` | Build for production |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
+| `npm run download-voice-models` | Download Kokoro + Whisper to `local-models/` |
+| `npm run serve-models` | Serve `local-models/` on port 8080 (for local TTS) |
+| `npm run pregenerate-quiz-audio` | Generate WAVs for each voice quiz question (instant Play; run after `serve-models`) |
+
+---
+
+## Handover / debugging
+
+- **Voice quiz bugs (TTS + Esc):** See **[docs/handover-voice-quiz-bugfixing.md](docs/handover-voice-quiz-bugfixing.md)** for a detailed handover (what’s broken, what’s been tried, suggested next steps) so another developer or agent can continue.
+- **Cline Memory Bank (canonical):** **`.cline/memory-bank/`** — exactly five files: `00_project-brief.md`, `01_current-goal.md`, `02_decisions.md`, `03_progress-log.md`, `04_open-questions.md`. (Directory is gitignored; create locally if missing.)

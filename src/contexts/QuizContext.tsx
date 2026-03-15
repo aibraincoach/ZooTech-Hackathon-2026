@@ -47,10 +47,19 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     navigate('/quiz');
   };
 
+  const startVoiceQuiz = () => {
+    setQuizState(defaultQuizState);
+    navigate('/quiz/voice');
+  };
+
   const resetQuiz = () => {
     setQuizState(defaultQuizState);
     sessionStorage.removeItem('quizState');
     navigate('/');
+  };
+
+  const resetForVoiceIntro = () => {
+    setQuizState(defaultQuizState);
   };
 
   const setUserIntent = (intent: UserIntent) => {
@@ -89,6 +98,15 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const goToQuestionIndex = (index: number) => {
+    const clamped = Math.max(0, Math.min(index, questions.length - 1));
+    setQuizState(prevState => ({
+      ...prevState,
+      currentQuestionIndex: clamped,
+      isCompleted: false,
+    }));
+  };
+
   const selectOption = (questionId: number, optionId: string) => {
     setQuizState((prevState) => {
       const currentAnswers = prevState.answers[questionId] || [];
@@ -116,6 +134,16 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       };
     });
+  };
+
+  const setQuestionAnswers = (questionId: number, optionIds: string[]) => {
+    setQuizState((prev) => ({
+      ...prev,
+      answers: {
+        ...prev.answers,
+        [questionId]: optionIds,
+      },
+    }));
   };
 
   const isOptionSelected = (questionId: number, optionId: string): boolean => {
@@ -148,14 +176,18 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: QuizContextType = {
     quizState,
     startQuiz,
+    startVoiceQuiz,
     goToNextQuestion,
     goToPreviousQuestion,
+    goToQuestionIndex,
     selectOption,
     unselectOption,
+    setQuestionAnswers,
     isOptionSelected,
     skipQuestion,
     calculateScores,
     resetQuiz,
+    resetForVoiceIntro,
     setUserIntent,
   };
 
