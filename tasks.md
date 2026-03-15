@@ -1,8 +1,8 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-03-14 (Milestone 5 in progress)
+**Last updated:** 2026-03-14 (Milestone 6 in progress)
 
-Tasks are organised by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
+Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
 ---
 
@@ -93,14 +93,14 @@ Remove all code that depends on Supabase, email delivery, or server-side persist
 - [x] Define broad multimodal prompt template for three-or-more-style ties [2026-03-14]
 - [x] Create `generateAIPrompts(scores: VarkScores): { systemPrompt: string; conversationPrompt: string }` in `src/utils/aiPrompts.ts` [2026-03-14]
 - [x] Write unit tests for `generateAIPrompts` covering all 4 pure styles + key multimodal combinations (Vitest) [2026-03-14]
-- [x] Build `AIPromptsCard` component with clearly labelled System Prompt and Conversation Prompt blocks [2026-03-14]
+- [x] Build `AIPromptsCard` component with clearly labeled System Prompt and Conversation Prompt blocks [2026-03-14]
 - [x] Add one-click copy button to each prompt block [2026-03-14]
 - [x] Add copy-with-feedback state: button text changes to "Copied!" for 2 seconds after click [2026-03-14]
 - [x] Add explanatory text above each prompt block explaining what it is and when to use it [2026-03-14]
 - [x] Insert `AIPromptsCard` in `ResultsPage` between `ResultsExplanation` and "Retake Quiz" card [2026-03-14]
 - [x] Confirm `AIPromptsCard` renders correctly on the shareable `/r/:hash` results page [2026-03-14]
 - [x] Add full dark mode styling to `AIPromptsCard` [2026-03-14]
-- [ ] Test System Prompt manually with ChatGPT, Claude, and Gemini — confirm AI behaviour matches VARK style
+- [ ] Test System Prompt manually with ChatGPT, Claude, and Gemini — confirm AI behavior matches VARK style
 - [ ] Test Conversation Prompt manually in a live session — confirm mid-session reorientation works
 - [ ] Update `PRD.md` with final approved prompt copy once wording is confirmed
 
@@ -108,9 +108,17 @@ Remove all code that depends on Supabase, email delivery, or server-side persist
 
 ## Milestone 6 — Quality & Polish
 
+- [x] Add shareable results link card at bottom of results page — `/r/:hash` URL with copy-to-clipboard [2026-03-14]
+- [x] Codebase audit — remove all non-production scaffolding and dead files [2026-03-14]
 - [ ] Add Vitest + React Testing Library — unit tests for `calculateScores` and `generateAIPrompts`
-- [ ] Add proper 404 page for unmatched routes
+- [x] Add proper 404 page for unmatched routes [2026-03-14]
 - [ ] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL
 - [ ] Audit and remove all `console.log` statements from production code
-- [ ] Verify no residual Supabase imports or dead code remain after Milestone 4 cleanup
 - [ ] Add E2E test for the full quiz → results → copy prompt flow with Playwright (good-to-have)
+- [x] Fix dark mode flickering during quiz navigation (unstable useEffect deps) [2026-03-14]
+- [x] Fix scroll jump on answer selection (useEffect re-firing window.scrollTo) [2026-03-14]
+- [x] Add missing dark: variants across QuizIntro, QuizContainer, ResultsExplanation, ResultsChart [2026-03-14]
+- [x] Guard /results route against direct access without quiz completion [2026-03-14]
+- [x] Fix all-zero scores edge case in ResultsPage (dominantStyles) [2026-03-14]
+- [x] Wrap QuizContext functions in useCallback for stable references [2026-03-14]
+- [x] Create BRANDING.md — full brand style guide for designer handoff [2026-03-14]

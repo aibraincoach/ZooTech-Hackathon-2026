@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { useQuiz } from '../../contexts/QuizContext';
-import ThemeToggle from '../shared/ThemeToggle';
+import { usePageMeta } from '../../hooks/usePageMeta';
+import { APP } from '../../constants/app';
 
 const LandingPage: React.FC = () => {
   const { startQuiz, startVoiceQuiz } = useQuiz();
+  usePageMeta('', APP.description);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -20,22 +21,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <motion.nav
-        className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-violet-100 dark:border-gray-700 shadow-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/varkly-icon.svg" alt="Varkly" className="h-8 w-8 mr-1.5" />
-            <span className="text-lg font-semibold text-gray-800 dark:text-gray-100 tracking-tight">Varkly</span>
-          </Link>
-          <ThemeToggle />
-        </div>
-      </motion.nav>
-
-      <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 md:py-20">
         <motion.header
           className="text-center mb-14 md:mb-20"
           initial={{ opacity: 0, y: -12 }}
@@ -43,10 +29,10 @@ const LandingPage: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-600 bg-clip-text text-transparent dark:from-violet-400 dark:via-indigo-400 dark:to-emerald-400 tracking-tight leading-tight mb-3">
-            The best way to understand how you learn.
+            Your AI doesn't know how your brain works. Fix that in 90 seconds.
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg md:text-xl max-w-xl mx-auto">
-            Take the VARK quiz. Get your results in minutes.
+            Answer {APP.quizQuestionCount} questions. Get a personalized prompt that makes any AI speak your brain's language.
           </p>
         </motion.header>
 
@@ -57,21 +43,12 @@ const LandingPage: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <h2 className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-            Why Is Your Brain Ignoring Half Of What You Learn?
+            AI gives everyone the same format. Your brain doesn't work like everyone else's.
           </h2>
 
           <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-            Everyone's brain has a preferred way of processing information - and when you learn
-            in a way that doesn't match your style, it's like trying to watch Netflix with
-            dial-up internet. Painful and inefficient.
+            Everyone's brain has a preferred way of processing information. When your AI doesn't know your style, you spend more energy decoding its answers than actually learning. {APP.name} fixes that.
           </p>
-
-          <div className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/30 dark:to-indigo-900/30 p-5 rounded-xl mb-8 border border-violet-100 dark:border-violet-800">
-            <p className="text-violet-900 dark:text-violet-300 font-medium italic">
-              "Find out why your teachers made learning feel like trying to eat soup with a fork.
-              Turns out, it might not have been your fault after all."
-            </p>
-          </div>
 
           <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
             Take the VARK Learning Style Quiz
@@ -103,7 +80,7 @@ const LandingPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <motion.button
               onClick={startQuiz}
-              className="btn-primary w-full md:w-auto md:px-10 flex justify-center text-lg"
+              className="btn-primary w-full md:w-auto md:mx-auto md:px-10 flex justify-center text-lg"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               role="button"
@@ -131,7 +108,7 @@ const LandingPage: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <p>13 questions • Takes about 3 minutes • No login required</p>
+          <p>{APP.quizQuestionCount} questions • {APP.quizEstimatedSeconds} seconds • No login required</p>
           <p className="mt-1">Results available immediately</p>
         </motion.div>
       </div>

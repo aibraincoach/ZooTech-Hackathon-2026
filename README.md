@@ -10,23 +10,12 @@ Varkly is a fast, frictionless web app that helps you discover your VARK learnin
 - **Instant shareable results** — Scores are base64-encoded into a unique URL (`/r/:hash`) that anyone can open without an account or server lookup.
 - **AI Prompts** — Copy-ready system and conversation prompts generated client-side from your VARK scores, ready to paste into any AI tool.
 - **Dark mode** — Full dark/light mode switching persisted in `localStorage`.
-- **Voice quiz** (`/quiz/voice`) — Speak answers; TTS + STT + LLM mapping (see below).
-
----
-
-## Voice quiz: real-time vs pre-generated audio (demo choice)
-
-**What the codebase supports:** Full **in-browser**, **online-capable** voice processing is wired up: **TTS** (Kokoro) and **STT** (Whisper) run in a Web Worker; answers are mapped to VARK via an LLM. That path is **responsive** once models are loaded—i.e. true **real-time** synthesis and transcription are possible for anyone who runs the app with local or proxied models (see below).
-
-**What we use for the hackathon demo:** Question audio and short confirmations are served from **pre-generated WAV files** (`quiz-audio/q0.wav` … `got-it.wav`, etc.). That keeps **Play** and the first question **instant** for judges and visitors, with no long first-load wait for TTS. It does **not** mean voice is “fake”: the same Kokoro voice and scripts generate those files; the **live** worker path remains available for **Play question** fallbacks, other voices, and development.
-
-**Summary:** Real-time TTS/STT **is** supported in-repo; **pregen** is a **demo speed** choice, not an architectural limit.
 
 ---
 
 ## Architecture
 
-Varkly is stateless: no accounts, no database for quiz/results. The **text** quiz and **results** page need no server. The **voice** quiz calls an LLM from the browser (OpenRouter or a team-configured base URL in `.env` only)—see Getting Started.
+Varkly is entirely stateless. There is no backend, no database, and no API calls during the quiz or results flow. Everything runs in the browser.
 
 ```
 Browser (React SPA)
@@ -51,6 +40,18 @@ Anyone with a `/r/:hash` link can view the results without any server request. T
 ---
 
 ## Tech Stack
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
+  <img src="https://img.shields.io/badge/Lucide-808080?style=for-the-badge&logo=lucide&logoColor=white" alt="Lucide" />
+  <img src="https://img.shields.io/badge/Recharts-FF6384?style=for-the-badge&logo=recharts&logoColor=white" alt="Recharts" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+</p>
 
 | Layer | Technology |
 |---|---|
@@ -109,16 +110,7 @@ npm install
 npm run dev
 ```
 
-**Text quiz + results:** No env vars required.
-
-**Voice quiz LLM:** Mapping spoken answers to VARK options needs either **`VITE_OPENROUTER_API_KEY`** (see [.env.example](.env.example)) or a team-provided **`VITE_LLM_BASE_URL`** to an OpenAI-compatible API. **Do not commit** private proxy URLs or keys—they are equivalent to API access. Use `.env` locally only; `.env.example` shows placeholders only.
-
-### Voice quiz (`/quiz/voice`)
-
-1. **Demo / judges:** Pregenerated WAVs give **immediate** question audio. Generate once: `npm run serve-models` (port 8080) + `npm run pregenerate-quiz-audio` (see [.env.example](.env.example) for `VITE_TTS_MODEL_PROXY_URL` and `VITE_TTS_VOICE`).  
-2. **Live TTS + STT:** Same app can run **real-time** Kokoro + Whisper in the worker once models are available (local proxy or HF). Pregen is optional; if WAVs are missing, **Play question** uses live TTS (slower first time).  
-3. **Optional OpenAI backend** for &lt;2s latency in constrained demos: **[docs/voice-backend.md](docs/voice-backend.md)** — `OPENAI_API_KEY`, `npm run server` + `npm run dev`.  
-4. **Local models:** **[docs/local-voice-models.md](docs/local-voice-models.md)** — `download-voice-models`, `serve-models`, `VITE_TTS_MODEL_PROXY_URL`.
+No environment variables are required. The app is fully functional with zero configuration.
 
 ### Build for production
 
@@ -135,17 +127,6 @@ The output is in `dist/`. The included `vercel.json` configures SPA rewrites for
 | Command | Description |
 |---|---|
 | `npm run dev` | Start the local development server |
-| `npm run server` | Voice backend (TTS + STT) on port 3001; needs `OPENAI_API_KEY` |
 | `npm run build` | Build for production |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
-| `npm run download-voice-models` | Download Kokoro + Whisper to `local-models/` |
-| `npm run serve-models` | Serve `local-models/` on port 8080 (for local TTS) |
-| `npm run pregenerate-quiz-audio` | Generate WAVs for each voice quiz question (instant Play; run after `serve-models`) |
-
----
-
-## Handover / debugging
-
-- **Voice quiz bugs (TTS + Esc):** See **[docs/handover-voice-quiz-bugfixing.md](docs/handover-voice-quiz-bugfixing.md)** for a detailed handover (what’s broken, what’s been tried, suggested next steps) so another developer or agent can continue.
-- **Cline Memory Bank (canonical):** **`.cline/memory-bank/`** — exactly five files: `00_project-brief.md`, `01_current-goal.md`, `02_decisions.md`, `03_progress-log.md`, `04_open-questions.md`. (Directory is gitignored; create locally if missing.)
