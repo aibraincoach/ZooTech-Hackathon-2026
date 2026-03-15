@@ -373,21 +373,6 @@ const VoiceQuizQuestions: React.FC<VoiceQuizQuestionsProps> = ({ registerClearTi
     };
   }, [status, startRecording, stopRecording, advanceToNextQuestion]);
 
-  const handleSkip = useCallback(() => {
-    if (!currentQuestion) return;
-    setQuestionAnswers(currentQuestion.id, []);
-    setLastTranscript('');
-    setLastMappedNames([]);
-    setError(null);
-    goToNextQuestion();
-  }, [currentQuestion, setQuestionAnswers, goToNextQuestion]);
-
-  if (!currentQuestion) {
-    return null;
-  }
-
-  const progress = ((currentIndex + 1) / questions.length) * 100;
-
   const clearTimeouts = useCallback(() => {
     if (autoplayTimeoutRef.current) {
       clearTimeout(autoplayTimeoutRef.current);
@@ -398,6 +383,21 @@ const VoiceQuizQuestions: React.FC<VoiceQuizQuestionsProps> = ({ registerClearTi
       nextQuestionTimeoutRef.current = null;
     }
   }, []);
+
+  const handleSkip = useCallback(() => {
+    if (!currentQuestion) return;
+    stopSpeechPlayback();
+    clearTimeoutsRef.current();
+    clearTimeouts();
+    setQuestionAnswers(currentQuestion.id, []);
+    setLastTranscript('');
+    setLastMappedNames([]);
+    setError(null);
+    hasSpokenRef.current = false;
+    goToNextQuestion();
+    setScheduleAutoplay(true);
+  }, [currentQuestion, setQuestionAnswers, goToNextQuestion, clearTimeouts]);
+
   useEffect(() => {
     registerClearTimeouts?.(clearTimeouts);
     return () => { registerClearTimeouts?.(() => {}); };
@@ -409,6 +409,12 @@ const VoiceQuizQuestions: React.FC<VoiceQuizQuestionsProps> = ({ registerClearTi
     stopPlayback();
     action();
   }, [clearTimeouts, stopPlayback]);
+
+  if (!currentQuestion) {
+    return null;
+  }
+
+  const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
     <div className="min-h-screen">

@@ -12,6 +12,9 @@ import {
 
 const VoiceQuizQuestions = lazy(() => import('./VoiceQuizQuestions'));
 
+/** Pause after Start before Q1 audio so the screen can be read (1s). */
+const FIRST_QUESTION_PLAY_DELAY_MS = 1000;
+
 const VoiceQuizContainer: React.FC = () => {
   const { quizState, goToNextQuestion, goToQuestionIndex, resetForVoiceIntro } = useQuiz();
   const currentIndex = quizState.currentQuestionIndex;
@@ -49,7 +52,9 @@ const VoiceQuizContainer: React.FC = () => {
     const handleStartVoiceQuiz = async () => {
       void resumeAudioForPlayback();
       goToNextQuestion();
-      playPregeneratedQuestionFromUserGesture(0);
+      window.setTimeout(() => {
+        playPregeneratedQuestionFromUserGesture(0);
+      }, FIRST_QUESTION_PLAY_DELAY_MS);
       setIsPreparingVoice(true);
       void prewarmVoiceTts().catch((error) => {
         console.warn('Kokoro prewarm failed, continuing with runtime fallback:', error);
