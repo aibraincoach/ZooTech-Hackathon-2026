@@ -63,8 +63,12 @@
 
   .card {
     @apply rounded-2xl p-6 md:p-8 shadow-xl border backdrop-blur-xl;
-    @apply bg-white/92 shadow-gray-200/40 border-gray-100/80;
-    @apply dark:bg-gray-800/90 dark:shadow-none dark:border-gray-700/80;
+    @apply shadow-gray-200/40 border-gray-100/80;
+    @apply dark:shadow-none dark:border-gray-700/80;
+    background-color: rgb(255 255 255 / 0.92);
+  }
+  .dark .card {
+    background-color: rgb(30 27 75 / 0.9);
   }
 
   .quiz-option {
