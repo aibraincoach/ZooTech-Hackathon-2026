@@ -112,6 +112,7 @@ async function getKokoroTts(): Promise<KokoroTTSInstance> {
   return kokoroLoadPromise;
 }
 
+/** Whisper ASR pipeline. Console may show "dtype not specified for encoder_model/decoder_model_merged" — expected from ONNX runtime, safe to ignore. */
 async function getAsrPipeline(): Promise<AsrPipeline> {
   if (!sttPipeline) {
     sttPipeline = (await (pipeline as (task: string, model: string) => Promise<unknown>)(

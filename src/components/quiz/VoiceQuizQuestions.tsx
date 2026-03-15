@@ -67,6 +67,12 @@ const VoiceQuizQuestions: React.FC<VoiceQuizQuestionsProps> = ({ registerClearTi
     prewarmVoiceTts().catch(() => {});
   }, []);
 
+  // Clear previous question's transcript when switching to a new question so we don't show stale "You said" / "We heard".
+  useEffect(() => {
+    setLastTranscript('');
+    setLastMappedNames([]);
+  }, [currentIndex]);
+
   // When we just advanced (scheduleAutoplay true), wait 1.5s then play the new question. State ensures this runs once per advance.
   useEffect(() => {
     if (!currentQuestion || !scheduleAutoplay) return;
